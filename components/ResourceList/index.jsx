@@ -19,7 +19,7 @@ const ResourceList = () => (
     {({loading, error, data, refetch, networkStatus }) => {
       if (networkStatus === 4) return "Refetching!";
       if(loading) return <h2>Loading links...</h2>;
-      const resourceList = data.store.links.map(resource => <Resource key={resource._id} title={resource.title} />)
+      const resourceList = data.store.links.map(resource => <Resource key={resource._id} title={resource.title} id={resource._id}/>)
       return (<>
       {resourceList}
         <button onClick={() => refetch()}>Refetch</button>
