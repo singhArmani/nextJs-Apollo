@@ -51,8 +51,7 @@ function Shows(props) {
 }
 
 Shows.getInitialProps = async function() {
-    console.log({fetch})
-    const res = await fetch('https://api.tvmaze.com/search/shows?q=batman')
+  const res = await fetch('https://api.tvmaze.com/search/shows?q=batman')
   const data = await res.json()
 
   console.log(`Show data fetched. Count: ${data.length}`)

@@ -3,12 +3,12 @@ import { ApolloProvider } from 'react-apollo';
 import { ApolloClient } from 'apollo-client';
 import { createHttpLink } from 'apollo-link-http';
 import { InMemoryCache } from 'apollo-cache-inmemory';
-import fetch from 'node-fetch';
+import fetch from 'isomorphic-unfetch';
 
 import Layout from '../components/Layout';
 import ResourceList from '../components/ResourceList';
 const httpLink = createHttpLink({
-    uri: "http://localhost:3000/graphql",
+    uri: "http://localhost:8000/graphql",
     fetch
 })
 const client = new ApolloClient({
