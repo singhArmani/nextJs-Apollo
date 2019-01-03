@@ -2,9 +2,11 @@ const express = require('express');
 const next = require('next');
 const GraphQLHTTP = require('express-graphql');
 const mongoClient = require('mongodb').MongoClient;
+const { makeExecutableSchema } = require('graphql-tools');
 
 const mngdb = require('./db');
 const _schema = require('./data/schema');
+const { typeDefs, getResolver } = require('./data/schema_sdl');
 
 const port = parseInt(process.env.PORT, 10) || 8000;
 const dev = process.env.NODE_ENV !== 'production'
@@ -24,10 +26,16 @@ let db;
      db = client.db('singhmongo');
 
      // getting GraphQL schema
-     const schema = _schema(db);
+     const resolvers = getResolver(db);
+
+     const executableSchema = makeExecutableSchema({
+         typeDefs,
+         resolvers
+     });
+
 
      server.use('/graphql', GraphQLHTTP({
-        schema,
+        schema: executableSchema,
         graphiql: true
     }));
 
