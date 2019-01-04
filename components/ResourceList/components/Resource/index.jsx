@@ -2,7 +2,7 @@ import Link  from 'next/link'
 const Resource = (props) => {
   return (
     <li>
-      <Link as={`/r/${props.id}`} href={`/resource?title=${props.title}`}>
+      <Link as={`/r/${props.id}`} href={`/resource?id=${props.id}`}>
         <a>{props.title}</a>
       </Link>
       <style jsx>{`

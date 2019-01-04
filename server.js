@@ -42,7 +42,7 @@ let db;
     server.get('/r/:id', (req, res) => {
         const actualPage = '/resource';
         const queryParams = {
-            title: req.params.id
+            id: req.params.id
         };
         
         app.render(req, res, actualPage, queryParams)
