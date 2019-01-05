@@ -1,11 +1,9 @@
 const express = require('express');
+const { ApolloServer } = require('apollo-server-express');
 const next = require('next');
-const GraphQLHTTP = require('express-graphql');
 const mongoClient = require('mongodb').MongoClient;
-const { makeExecutableSchema } = require('graphql-tools');
 
 const mngdb = require('./db');
-const _schema = require('./data/schema');
 const { typeDefs, getResolver } = require('./data/schema_sdl');
 
 const port = parseInt(process.env.PORT, 10) || 8000;
@@ -19,8 +17,7 @@ let db;
 (async () => {
     try {
      await app.prepare();
-     const server = express();
-    
+    const expressServer = express();
      // connecting to mongodb 
      const client = await mongoClient.connect(mngdb.MONGO_URL, mngdb.options);
      db = client.db('singhmongo');
@@ -28,18 +25,18 @@ let db;
      // getting GraphQL schema
      const resolvers = getResolver(db);
 
-     const executableSchema = makeExecutableSchema({
-         typeDefs,
-         resolvers
-     });
+     const apolloServer = new ApolloServer({
+        typeDefs,
+        resolvers,
+        playground: {
+            endpoint: `http://localhost:8000/graphql`,
+            settings: {
+              'editor.theme': 'light'
+            }
+          }
+    });
 
-
-     server.use('/graphql', GraphQLHTTP({
-        schema: executableSchema,
-        graphiql: true
-    }));
-
-    server.get('/r/:id', (req, res) => {
+    expressServer.get('/r/:id', (req, res) => {
         const actualPage = '/resource';
         const queryParams = {
             id: req.params.id
@@ -47,7 +44,7 @@ let db;
         
         app.render(req, res, actualPage, queryParams)
     })
-    server.get('/s/:id', (req, res) => {
+    expressServer.get('/s/:id', (req, res) => {
         const actualPage = '/show';
         const queryParams = {
             id: req.params.id
@@ -56,14 +53,21 @@ let db;
         app.render(req, res, actualPage, queryParams)
     })
 
-    server.get('*', (req, res) => {
-        return handle(req, res);
-    })
 
-    server.listen(port, err => {
-        if(err) throw err
-        console.log(`> Ready on http://localhost:${port}`)
+
+    expressServer.get('*', (req, res) => {
+        return handle(req, res);
     });
+
+    apolloServer.applyMiddleware( {app: expressServer});
+
+    expressServer.listen(port, err => {
+        if(err) console.log(err);
+
+        console.log({path: apolloServer.graphqlPath})
+        console.log(`> Ready on http:localhost:${port}`)
+    });
+
 }catch(ex) {
     console.error(ex.stack)
     process.exit(1)
